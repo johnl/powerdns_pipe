@@ -1,0 +1,55 @@
+= PowerDNS Pipe Backend Abstraction
+
+powerdns_pipe is a Ruby library for developing
+{PowerDNS}[http://www.powerdns.com] pipe backend resolvers.
+
+More information on the PowerDNS pipe backend {can be found
+here}[http://doc.powerdns.com/backends-detail.html].
+
+== Installation
+
+  sudo gem install powerdns_pipe
+
+== Basic example
+
+Return an A record of 1.2.3.4 for all queries:
+
+  require 'powerdns_pipe'
+	PowerDNS::Pipe.new.run! do
+    answer :name => question.name, :type => 'A', :ttl => 60, :content => '1.2.3.4'
+  end
+
+== Advanced example
+
+Return the HTTP Server header as a TXT record for the host requested.
+
+$ host -t txt www.ubuntu.com.example.com
+ubuntu.com.example.com descriptive text "Apache/2.2.8 (Ubuntu) mod_python/3.3.1"
+
+  require 'powerdns_pipe'
+  require 'net/http'
+  re = Regexp.new("^(.+)\.example\.com$")
+  pipe = PowerDNS::Pipe.new :banner => 'HTTP Server Header TXT Pipe'
+	pipe.run! do
+	  if m = re.match(question.name)
+      domain = m[1]
+			case question.qtype
+      when "TXT", "ANY"
+     	  res = Net::HTTP.get_response(URI.parse("http://" + domain))
+        answer :name => question.name , :type => 'TXT', :ttl => 3600, 
+          :content => res['Server']
+      end
+    end
+  end
+  
+= More Info
+
+Author::  John Leach  (mailto:john@johnleach.co.uk)
+Copyright:: Copyright (c) 2010 John Leach
+License:: MIT
+Github:: http://github.com/johnl/powerdns_pipe/tree/master
+
+See also the {ruby-pdns library}[http://code.google.com/p/ruby-pdns/]
+which does things differently, with some different limitations
+(thought is much more mature, I would have added this behaviour to it
+if I'd found it before I finished this one!)
