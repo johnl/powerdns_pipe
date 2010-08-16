@@ -23,8 +23,8 @@ Return an A record of 1.2.3.4 for all queries:
 
 Return the HTTP Server header as a TXT record for the host requested.
 
-$ host -t txt www.ubuntu.com.example.com
-ubuntu.com.example.com descriptive text "Apache/2.2.8 (Ubuntu) mod_python/3.3.1"
+  $ host -t txt www.ubuntu.com.example.com
+  ubuntu.com.example.com descriptive text "Apache/2.2.8 (Ubuntu) mod_python/3.3.1"
 
   require 'powerdns_pipe'
   require 'net/http'
