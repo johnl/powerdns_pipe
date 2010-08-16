@@ -1,4 +1,4 @@
-= PowerDNS Pipe Backend Abstraction
+= Ruby PowerDNS Pipe Backend Abstraction
 
 powerdns_pipe is a Ruby library for developing
 {PowerDNS}[http://www.powerdns.com] pipe backend resolvers.
@@ -15,7 +15,7 @@ here}[http://doc.powerdns.com/backends-detail.html].
 Return an A record of 1.2.3.4 for all queries:
 
   require 'powerdns_pipe'
-	PowerDNS::Pipe.new.run! do
+  PowerDNS::Pipe.new.run! do
     answer :name => question.name, :type => 'A', :ttl => 60, :content => '1.2.3.4'
   end
 
@@ -30,12 +30,12 @@ ubuntu.com.example.com descriptive text "Apache/2.2.8 (Ubuntu) mod_python/3.3.1"
   require 'net/http'
   re = Regexp.new("^(.+)\.example\.com$")
   pipe = PowerDNS::Pipe.new :banner => 'HTTP Server Header TXT Pipe'
-	pipe.run! do
-	  if m = re.match(question.name)
+  pipe.run! do
+    if m = re.match(question.name)
       domain = m[1]
-			case question.qtype
+      case question.qtype
       when "TXT", "ANY"
-     	  res = Net::HTTP.get_response(URI.parse("http://" + domain))
+        res = Net::HTTP.get_response(URI.parse("http://" + domain))
         answer :name => question.name , :type => 'TXT', :ttl => 3600, 
           :content => res['Server']
       end
