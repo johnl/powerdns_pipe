@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.name    = 'powerdns_pipe'
-  s.version = '1.0'
-  s.date    = '2010-08-16'
+  s.version = '1.0.1'
+  s.date    = '2010-08-17'
   
   s.summary = "A Ruby abstraction of the PowerDNS pipe backend protocol"
   s.description = "A library to allow easy development of powerdns pipe backend resolvers in Ruby"
