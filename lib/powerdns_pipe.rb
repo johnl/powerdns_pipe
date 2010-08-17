@@ -73,7 +73,7 @@ module PowerDNS
         :class => 'IN'
       }.merge options
 
-      respond "DATA", options[:name], options[:class], options[:type], options[:ttl], options[:content]
+      respond "DATA", options[:name], options[:class], options[:type], options[:ttl], options[:id], options[:content]
     end
 
     private
