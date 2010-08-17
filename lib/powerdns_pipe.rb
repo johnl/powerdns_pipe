@@ -69,7 +69,7 @@ module PowerDNS
     def answer(options = {})
       options = {
         :ttl => 3600,
-        :id => 1,
+        :id => -1,
         :class => 'IN'
       }.merge options
 
