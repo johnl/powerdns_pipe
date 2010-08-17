@@ -10,7 +10,13 @@ Gem::Specification.new do |s|
   s.email    = 'john@johnleach.co.uk'
   s.homepage = 'http://github.com/johnl/powerdns_pipe/tree/master'
   
-  s.has_rdoc = false
+  s.has_rdoc = true
+
+  s.rdoc_options << '--title' << 'PowerDNS Pipe' <<
+    '--main' << 'README.rdoc' <<
+    '--line-numbers'
+
+  s.extra_rdoc_files = ["README.rdoc"]
 
   s.files = Dir.glob("lib/*")
 end
