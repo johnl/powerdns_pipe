@@ -10,9 +10,101 @@ here}[http://doc.powerdns.com/backends-detail.html].
 
   sudo gem install powerdns_pipe
 
+== Documentation
+
+PowerDNS::Pipe works by handling all the communication with PowerDNS
+for you.  It handles the <tt>HELO</tt> and <tt>PING</tt> and stuff,
+but calls a block when a query or axfr request is made.  The block has
+access to a <tt>question</tt> object which has information about the
+query from PowerDNS, and the <tt>answer</tt> method, which provides
+responses to PowerDNS.
+
+<tt>PowerDNS::Pipe.new</tt> takes a hash of options, all are optional
+and the defaults are usually all you need:
+
+[:input] The IO object to read requests from PowerDNS. Defaults to
+         STDIN
+
+[:output] The IO object to write responses to PowerDNS. Defaults to
+          STDOUT
+
+[:err] The IO object to write debugging information. Defaults to
+       STDERR, but is rarely used.
+
+[:version_range] A Range instance representing the Pipe protocol
+                 versions this backend supports.  Defaults to 1..2
+
+[:banner] A string used in response to HELO requests from PowerDNS, is
+          logged to the PowerDNS logs. Defaults to "Ruby PowerDNS::Pipe"
+
+=== question object
+
+The <tt>question</tt> object provides information about the query from
+the server:
+
+[<tt>name</tt>] The record being requested, e.g: <tt>www.example.com</tt>
+
+[<tt>qtype</tt>] The request type, such as <tt>A</tt> or
+                 <tt>MX</tt>. PowerDNS often uses <tt>ANY</tt>, to
+                 which you should return all valid records for the
+                 name and PowerDNS worries about returning the right
+                 one to the client. You <em>must</em> support this
+                 type.
+
+[<tt>qclass</tt>] The request class, this is always <tt>IN</tt>.
+
+[<tt>remote_ip_address</tt>] The IP address of the host making the
+                             dns request.  You could use this to
+                             return different records for different
+                             geographic regions.
+
+[<tt>local_ip_address</tt>] The server IP address the request came
+                            into. Useful if your PowerDNS server is
+                            listening on multiple IPs and you want to
+                            consider that in your answers.
+
+[<tt>id</tt>] The id of the last answer to this question provided to
+              PowerDNS by this backend for this.  This might be
+              useful to you to speed up subsequent lookups. -1 by
+              default and can be ignored.
+
+[<tt>query?</tt>] Returns true if this is a normal Q query.
+
+[<tt>axfr?</tt>] Returns true if this is an axfr query.
+
+=== answer method
+
+The <tt>answer</tt> method is used to return records to PowerDNS.  It
+can be called multiple times to return multiple records.  Any
+exceptions are caught for you so garbage is not returned to PowerDNS.
+If you have nothing to return, just don't call answer at all.
+
+It takes the following options:
+
+[<tt>:name</tt>] The record name, e.g: <tt>www.example.com</tt>. Can
+                 usually just be set to <tt>question.name</tt>
+
+[<tt>:ttl</tt>] Time to Live in seconds. Defaults to 3600
+
+[<tt>:content</tt>] The content of the response, so an IP address
+                    string for <tt>A</tt> answers, or arbitrary text
+                    for <tt>TXT</tt> answers.  For records with a
+                    priority (like MX records) put the priority first
+                    and then a space and then the content, e.g: <tt>10
+                    mail.example.com</tt>
+
+[<tt>:id</tt>] An integer id for this answer. PowerDNS will remember
+               this and pass it back for subsequent requests for the
+               same record.  You might use this to pass around a
+               primary key or something to speed up subsequent
+               lookups.  Defaults to -1 and can be ignored.
+
+[<tt>:class</tt>] The class of this answer, defaults to <tt>IN</tt>
+                  and shouldn't be changed.
+
 == Basic example
 
-Return an A record of 1.2.3.4 for all queries:
+Return an <tt>A</tt> record of <tt>1.2.3.4</tt> for all queries:
 
   require 'powerdns_pipe'
   PowerDNS::Pipe.new.run! do
@@ -23,8 +115,12 @@ Return an A record of 1.2.3.4 for all queries:
 
 Return the HTTP Server header as a TXT record for the host requested.
 
+Example usage:
+
   $ host -t txt www.ubuntu.com.example.com
   ubuntu.com.example.com descriptive text "Apache/2.2.8 (Ubuntu) mod_python/3.3.1"
+
+Code:
 
   require 'powerdns_pipe'
   require 'net/http'
@@ -50,6 +146,4 @@ License:: MIT
 Github:: http://github.com/johnl/powerdns_pipe/tree/master
 
 See also the {ruby-pdns library}[http://code.google.com/p/ruby-pdns/]
-which does things differently, with some different limitations
-(thought is much more mature, I would have added this behaviour to it
-if I'd found it before I finished this one!)
+which does things differently, with some limitations.
