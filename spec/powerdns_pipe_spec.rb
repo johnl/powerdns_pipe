@@ -1,8 +1,4 @@
-$:.unshift File.join(File.dirname(__FILE__), '../lib')
-$:.unshift File.join(File.dirname(__FILE__), '../spec')
-
-require 'powerdns_pipe'
-include PowerDNS
+require 'spec_helper'
 
 describe Pipe do
 
@@ -65,7 +61,25 @@ describe Pipe do
       @output.string.should == "DATA\texample.com\tIN\tA\t300\t-1\t192.0.43.10\nEND\n"
     end
 
-    it "should answer an axfr"
+    it "should answer an axfr" do
+      @input.string = "AXFR\texample.com\tIN\tANY\t-1\t8.8.8.8\t127.0.0.1"
+      @pipe.run! { answer :name => "example.com", :type => "A", :ttl => 300, :content => "192.0.43.10" }
+      @output.string.should =~ /^DATA\texample.com/
+    end
+  end
+
+  describe "#answer" do
+    before :each do
+      @input = StringIO.new
+      @output = StringIO.new
+      @err = StringIO.new
+      @pipe = Pipe.new :input => @input, :output => @output, :err => @err
+    end
+
+    it "should write a valid data line" do
+      @pipe.answer :ttl => 300, :id => 99, :class => 'IN', :name => 'example.com', :type => 'A', :content => '127.0.0.1'
+      @output.string.should == "DATA\texample.com\tIN\tA\t300\t99\t127.0.0.1\n"
+    end
 
   end
 end
