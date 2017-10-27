@@ -20,8 +20,14 @@ module PowerDNS
         @question = question
       end
 
-      def answer(*args)
-        @pipe.answer *args
+      def answer(options = {})
+        options = {
+          :ttl => 3600,
+          :id => -1,
+          :class => 'IN'
+        }.merge options
+        return unless @question.qtype == "ANY" or @question.qtype == options[:type]
+        @pipe.send :respond, "DATA", options[:name], options[:class], options[:type], options[:ttl], options[:id], options[:content]
       end
 
     end
@@ -66,15 +72,6 @@ module PowerDNS
       err.write "EOF, terminating loop\n"
     end
 
-    def answer(options = {})
-      options = {
-        :ttl => 3600,
-        :id => -1,
-        :class => 'IN'
-      }.merge options
-
-      respond "DATA", options[:name], options[:class], options[:type], options[:ttl], options[:id], options[:content]
-    end
 
     private
 

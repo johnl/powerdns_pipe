@@ -66,6 +66,22 @@ describe Pipe do
       @pipe.run! { answer :name => "example.com", :type => "A", :ttl => 300, :content => "192.0.43.10" }
       @output.string.should =~ /^DATA\texample.com/
     end
+
+    it "should ignore answers that don't match the question type" do
+      @input.string = "Q\texample.com\tIN\tSOA\t-1\t8.8.8.8"
+      @pipe.run! { answer :name => "example.com", :type => "A", :ttl => 300, :content => "192.0.43.10" }
+      @output.rewind
+      @output.string.should == "END\n"
+    end
+
+    it "should pass through all answers when question type is ANY" do
+      @input.string = "Q\texample.com\tIN\tANY\t-1\t8.8.8.8"
+      @pipe.run! { answer :name => "example.com", :type => "A", :ttl => 300, :content => "192.0.43.10" }
+      @output.rewind
+      @output.string.should == "DATA\texample.com\tIN\tA\t300\t-1\t192.0.43.10\nEND\n"
+    end
+
+
   end
 
   describe "#answer" do
@@ -74,10 +90,13 @@ describe Pipe do
       @output = StringIO.new
       @err = StringIO.new
       @pipe = Pipe.new :input => @input, :output => @output, :err => @err
+      @question = Pipe::Question.new
+      @question.qtype = "A"
+      @answer = Pipe::Answer.new @pipe, @question
     end
 
     it "should write a valid data line" do
-      @pipe.answer :ttl => 300, :id => 99, :class => 'IN', :name => 'example.com', :type => 'A', :content => '127.0.0.1'
+      @answer.answer :ttl => 300, :id => 99, :class => 'IN', :name => 'example.com', :type => 'A', :content => '127.0.0.1'
       @output.string.should == "DATA\texample.com\tIN\tA\t300\t99\t127.0.0.1\n"
     end
 
