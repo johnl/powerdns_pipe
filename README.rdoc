@@ -141,9 +141,9 @@ Code:
 = More Info
 
 Author::  John Leach  (mailto:john@johnleach.co.uk)
-Copyright:: Copyright (c) 2010 John Leach
+Copyright:: Copyright (c) 2010-2018 John Leach
 License:: MIT
-Github:: http://github.com/johnl/powerdns_pipe/tree/master
+Github:: https://github.com/johnl/powerdns_pipe/tree/master
 
 See also the {ruby-pdns library}[http://code.google.com/p/ruby-pdns/]
 which does things differently, with some limitations.
