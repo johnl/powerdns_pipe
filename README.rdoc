@@ -90,7 +90,7 @@ It takes the following options:
                     string for <tt>A</tt> answers, or arbitrary text
                     for <tt>TXT</tt> answers.  For records with a
                     priority (like MX records) put the priority first
-                    and then a space and then the content, e.g: <tt>10
+                    and then a tab and then the content, e.g: <tt>10\t
                     mail.example.com</tt>
 
 [<tt>:id</tt>] An integer id for this answer. PowerDNS will remember
